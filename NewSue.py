@@ -11,8 +11,10 @@ from Raspi_MotorHAT_master import Raspi_MotorHAT, Raspi_DCMotor
 
 ####### NEEDS VALUE CHECKED FOR PINS #######
 
+leftButton = 1 ######
 #GPIO Set Up#
 GPIO.setmode(GPIO.BCM)
+GPIO.setup(leftButton, GPIO.IN)
 
 leftBack = Button(1) ######
 rightBack = Button(2)  #######
@@ -154,7 +156,7 @@ def Aiming():
 				rightDriver.run(Raspi_MotorHAT.RELEASE)
 				onCenter = True
 				Take_Shot()			#need to write for now just have motor run continuous?
-				status = pickup
+				status = "pickup"
 				break
 				
 def Take_Shot():			### NOT DONE ####
