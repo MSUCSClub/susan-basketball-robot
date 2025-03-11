@@ -4,15 +4,15 @@ import RPi.GPIO as GPIO
 #GPIO Set Up#
 GPIO.setmode(GPIO.BCM)  #BCM uses the GPIO numbering on pinouts, not the actual pin number sometimes printed on boards.
 # Motor 1 (M1)
-M1enL = 23  # Set pins to where they are wired. Can change this value here instead of everywhere it is referenced.
-M1enR = 24
-M1pwmL = 13
-M1pwmR = 14
+M1enL = 5  # Set pins to where they are wired. Can change this value here instead of everywhere it is referenced.
+M1enR = 6
+M1pwmL = 12
+M1pwmR = 13
 # Motor 2 (M2)
-M2enL = 23
-M2enR = 24
-M2pwmL = 13
-M2pwmR = 14
+M2enL = 26
+M2enR = 16
+M2pwmL = 18
+M2pwmR = 19
 # Motor 1 (M1)
 GPIO.setup(M1enL,GPIO.OUT)  # Setting those pins as output pins so the board knows to output signal there.
 GPIO.setup(M1enR,GPIO.OUT)
@@ -60,16 +60,16 @@ def driveStop():
 try:
     print("Starting test.")
 
-    driveLeft(50)
-    sleep(2)
+    driveLeft(70)
+    sleep(3)
     driveStop()
     sleep(2)
-    driveRight(75)
-    sleep(2)
+    driveRight(70)
+    sleep(3)
     driveStop()
 
     print("Test Complete.")
-
+    GPIO.cleanup()
 except KeyboardInterrupt:
     print("Keyboard Interrupt")
     GPIO.cleanup()

@@ -2,10 +2,10 @@
 
 import time
 import RPi.GPIO as GPIO
-import board
 from gpiozero import Button, DistanceSensor, LineSensor
 
 ####### NEEDS VALUE CHECKED FOR PINS AFTER WIRING #######
+GPIO.setmode(GPIO.BCM)
 ######## DRIVE MOTOR SET UP ##########
 # Drive Motor 1 (M1)
 M1enL = 5  # Set pins to where they are wired. Can change this value here instead of everywhere it is referenced.
@@ -128,8 +128,9 @@ def Start_Button():
 def Left_Load():
 	global onLeft, lastWall, status
 	#open left ramp
-	Drive_Left(75)
-	leftSide.when_pressed = Drive_Stop()	#This might need to be "wait for press"
+	Drive_Left(70)
+	leftSide.wait_for_press()
+	Drive_Stop()
 	lastWall = "left"
 	#shut left ramp MUST MOUNT SWITCH SO THAT RAMP IS NOT TOUCHING THE WALL WHEN IT IS PRESSED!!!
 	Balls() # check if balls were loaded
@@ -141,8 +142,8 @@ def Left_Load():
 def Right_Load():
 	global onRight, lastWall, status
 	#open right ramp
-	Drive_Right(75)
-	rightSide.when_pressed = Drive_Stop()	#This might need to be "wait for press"
+	Drive_Right(70)
+	rightSide.wait_for_press()
 	lastWall = "right"
 	#shut right ramp MUST MOUNT SWITCH SO THAT RAMP IS NOT TOUCHING THE WALL WHEN IT IS PRESSED!!!
 	Balls() # check if balls were loaded
