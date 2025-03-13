@@ -2,8 +2,10 @@ import time
 import RPi.GPIO as GPIO
 from gpiozero import Button, DistanceSensor, LineSensor
 
+
+
 leftSide = Button(4)
-rightSide = Button(15)
+rightSide = Button(17)
 
 def Left_Load():
 	global onLeft, lastWall
@@ -22,7 +24,6 @@ def Right_Load():
 	Left_Load()
 	
 try:
-	while True:
-		Left_Load()
+	Left_Load()
 except KeyboardInterrupt:
 	GPIO.cleanup()

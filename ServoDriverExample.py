@@ -1,7 +1,7 @@
 # To control three servos using a PCA9685 PWM driver connected via I2C to a Raspberry Pi 4 B, you can use the Adafruit PCA9685 library.
 
 #Step 1: Install Dependencies
-E#nsure you have the required libraries installed:
+#nsure you have the required libraries installed:
 
 #sh
 #sudo apt update

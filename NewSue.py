@@ -35,20 +35,29 @@ M2pwmR = GPIO.PWM(M2pwmR,1000)  #NOTES ON CONTROLLING MOTORS WITH PWM SIGNALS
                                     #pwmL.start(100) will start the motor spinning left at 100% speed
                                     #pwmL.stop() will stop the motor
                                     #pwmL.ChangeDutyCycle(50) will set the speed of the motor to 50%
+                                    
+############## Servo Setup ############################
+#Need to figure out what that angle is for servo functions. Assuming 0 for down, 90 for closed. 130 for pushing ball over.
+down = 0
+closed = 90
+push = 130
+rightRamp = servo.Servo(pca.channels[0])
+leftRamp = servo.Servo(pca.channels[7])
+kickServo = servo.Servo(pca.channels[15])
 #######################################################
 ############# Sensor Setup ############################
-leftBack = Button(14)
-rightBack = Button(15)
-leftSide = Button(4)
-rightSide = Button(17)
+#leftBack = Button(14)
+#rightBack = Button(15)
+#leftSide = Button(4)
+#rightSide = Button(17)
 
-lineSensor = LineSensor(27)
+#lineSensor = LineSensor(27)
 
-ballLeft = DistanceSensor(echo=23, trigger=24, threshold_distance=0.127)
-ballRight = DistanceSensor(echo=22, trigger=10, threshold_distance=0.127)
-ballCenter = DistanceSensor(echo=25, trigger=8, threshold_distance=0.127)
-startButton = Button(20)
-testButton = Button(21)
+#ballLeft = DistanceSensor(echo=23, trigger=24, threshold_distance=0.127)
+#ballRight = DistanceSensor(echo=22, trigger=10, threshold_distance=0.127)
+#ballCenter = DistanceSensor(echo=25, trigger=8, threshold_distance=0.127)
+#startButton = Button(20)
+#testButton = Button(21)
 
 def Test_Driver_Motors():
 	try:
@@ -127,12 +136,12 @@ def Start_Button():
 
 def Left_Load():
 	global onLeft, lastWall, status
-	#open left ramp
+	leftRamp.angle = down		#Need to figure out what that angle is. Assuming 0 for open.
 	Drive_Left(70)
 	leftSide.wait_for_press()
 	Drive_Stop()
 	lastWall = "left"
-	#shut left ramp MUST MOUNT SWITCH SO THAT RAMP IS NOT TOUCHING THE WALL WHEN IT IS PRESSED!!!
+	leftRamp.angle = closed
 	Balls() # check if balls were loaded
 	if centerBall == True:
 		status = "shooting"
@@ -141,11 +150,11 @@ def Left_Load():
 
 def Right_Load():
 	global onRight, lastWall, status
-	#open right ramp
+	rightRamp.angle = down
 	Drive_Right(70)
 	rightSide.wait_for_press()
 	lastWall = "right"
-	#shut right ramp MUST MOUNT SWITCH SO THAT RAMP IS NOT TOUCHING THE WALL WHEN IT IS PRESSED!!!
+	rightRamp.angle = closed
 	Balls() # check if balls were loaded
 	if centerBall == True:
 		status = "shooting"
@@ -181,54 +190,63 @@ def Aiming():	#NEED TO CHANGE WITH NEW DRIVE FUNCTIONS AND LINESENSOR FUNCTIONAL
 			if lineSensor.active_state:	# see note above.
 				Drive_Stop()
 				onCenter = True
-				Take_Shot()			#need to write for now just have motor run continuous?
+				Take_Shot()	#need to write for now just have motor run continuous?
+				leftRamp.angle = closed
+				rightRamp.angle = closed
+				
 				status = "pickup"
 				break
 				
 def Take_Shot():			### NOT DONE ####
 	#spin up flywheels
-	#time.sleep(1) #wait for flywheels to get to speed
+	time.sleep(1) #wait for flywheels to get to speed
 	#actuate kicker servor
-	#Balls()		# check status of balls
-		#if centerBall is False and leftBall is True and rightBall is True:	# move and shoot left ball, then move and shoot right ball.
-			#actuate left ramp to push left ball into center
-			#sleep(0.2)		# wait for ball to move
-			#Balls()			# check to make sure it moved
-			#if centerBall = True:		#shoot ball
-				#sleep(0.2) 	# wait for spinners to get to speed
+	Balls()		# check status of balls
+	if centerBall is False and leftBall is True and rightBall is True:	# move and shoot left ball, then move and shoot right ball.
+		leftRamp.angle = push
+		sleep(0.2)		# wait for ball to move
+		Balls()			# check to make sure it moved
+		if centerBall = True:		#shoot ball
+			sleep(0.2) 	# wait for spinners to get to speed
 				# Acuate kicker arm
-				#Balls()		# check to make sure it shot.
-				#if centerBall = False and rightBall is True:
-					#actuate right ramp to push right ball into center
-					#sleep(0.2)		# wait for ball to move
-					#Balls()			# check to make sure it moved
-					#if centerBall = True:		#shoot ball
-						#sleep(0.2) 	# wait for spinners to get to speed
-						# Acuate kicker arm
-						#Balls()		# check to make sure it shot.
-						#if centerBall is False:		#all balls should be shot not and break out of shooting process
+				Balls()		# check to make sure it shot.
+				if centerBall = False and rightBall is True:
+					rightRamp.angle = push
+					sleep(0.2)		# wait for ball to move
+					Balls()			# check to make sure it moved
+					if centerBall = True:		#shoot ball
+						sleep(0.2) 	# wait for spinners to get to speed
+						kickServo.angle = closed
+						sleep(0.5)
+						kickServo.angle = down
+						Balls()		# check to make sure it shot.
+						if centerBall is False:		#all balls should be shot not and break out of shooting process
 							#turn off spinner relay
-		#elif centerBall is False and leftBall is True and rightBall is False:
-			#actuate left ramp to push left ball into center
-			#sleep(0.2)		# wait for ball to move
-			#Balls()			# check to make sure it moved
-			#if centerBall = True:		#shoot ball
-				#sleep(0.2) 	# wait for spinners to get to speed
-				# Acuate kicker arm
-				#Balls()		# check to make sure it shot.
-				#if centerBall is False:		#all balls should be shot not and break out of shooting process
-							#turn off spinner relay
-		#elif centerBall = False and rightBall is True and leftBall is False:
-			#actuate right ramp to push right ball into center
-					#sleep(0.2)		# wait for ball to move
-					#Balls()			# check to make sure it moved
-					#if centerBall = True:		#shoot ball
-						#sleep(0.2) 	# wait for spinners to get to speed
-						# Acuate kicker arm
-						#Balls()		# check to make sure it shot.
-						#if centerBall is False:		#all balls should be shot not and break out of shooting process
-							#turn off spinner relay
-		#elif centerBall = False and rightBall is False and leftBall is False:
+		elif centerBall is False and leftBall is True and rightBall is False:
+			leftRamp.angle = push
+			sleep(0.2)		# wait for ball to move
+			Balls()			# check to make sure it moved
+			if centerBall = True:		#shoot ball
+				sleep(0.2) 	# wait for spinners to get to speed
+				kickServo.angle = closed
+				sleep(0.5)
+				kickServo.angle = down
+				Balls()		# check to make sure it shot.
+				if centerBall is False:		#all balls should be shot not and break out of shooting process
+					#turn off spinner relay
+		elif centerBall = False and rightBall is True and leftBall is False:
+			rightRamp.angle = push
+			sleep(0.2)		# wait for ball to move
+			Balls()			# check to make sure it moved
+			if centerBall = True:		#shoot ball
+				sleep(0.2) 	# wait for spinners to get to speed
+				kickServo.angle = closed
+				sleep(0.5)
+				kickServo.angle = down
+				Balls()		# check to make sure it shot.
+				if centerBall is False:		#all balls should be shot not and break out of shooting process
+					#turn off spinner relay
+		elif centerBall = False and rightBall is False and leftBall is False:
 			#turn off spinner relay
 	print("not done")
 	
@@ -252,7 +270,8 @@ startButton.when_pressed  = Start_Button()
 while status != "ready":		# should run until startbutton is pressed again
 	onCenter = On_Center()
 	Balls()
-	#shut ramps
+	rightRamp.angle = closed
+	leftRamp.angle = closed
 	while status == "pickup":	# pickup sequence
 		Left_Load()		# if we want it to go right first then this should be changed to Right_load()
 		
